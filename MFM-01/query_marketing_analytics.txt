@@ -1,0 +1,55 @@
+With base as (SELECT
+  CustomerID,
+  MIN (DATE(InvoiceDate)) first_trx_date,
+  Max (Date(InvoiceDate)) Last_Trx_date,
+  DATE_DIFF(DATE("2011-12-09"), MAX(Date(InvoiceDate)),day) Recency,
+  Count (Distinct InvoiceNo) Frequency,
+  SUM (UnitPrice*Quantity) Monetary
+FROM  `fourth-splice-341613.data_ecommerce.transactions`
+WHERE 
+  unitPrice > 0
+  and Quantity > 0
+  and CustomerID is not null
+GROUP BY 1),
+
+Formula as (SELECT
+  b.*,
+  (SELECT pct_r[offset(20)] FROM (SELECT APPROX_QUANTILES(Recency,100) pct_r FROM base)) r_4,
+  (SELECT pct_r[offset(40)] FROM (SELECT APPROX_QUANTILES(Recency,100) pct_r FROM base)) r_3,
+  (SELECT pct_r[offset(60)] FROM (SELECT APPROX_QUANTILES(Recency,100) pct_r FROM base)) r_2,
+  (SELECT pct_f[offset(80)] FROM (SELECT APPROX_QUANTILES(Frequency,100) pct_f FROM base)) f_4,
+  (SELECT pct_f[offset(60)] FROM (SELECT APPROX_QUANTILES(Frequency,100) pct_f FROM base)) f_3,
+  (SELECT pct_f[offset(40)] FROM (SELECT APPROX_QUANTILES(Frequency,100) pct_f FROM base)) f_2,
+  (SELECT pct_f[offset(20)] FROM (SELECT APPROX_QUANTILES(Frequency,100) pct_f FROM base)) f_1
+FROM base b),
+
+Base_2 as (SELECT 
+  CustomerID,
+  Recency,
+  Frequency,
+  Monetary,
+  CASE 
+    WHEN recency < r_4 and frequency >= f_4 then 'Champions'
+    WHEN recency < r_2 and frequency >= f_3 then 'Loyal Customers'
+    WHEN recency < r_3 and frequency >= f_1 then 'Potential Loyalist'
+    WHEN recency < r_2 and frequency >= f_2 then 'Need Attention'
+    WHEN recency < r_4 and frequency <= f_1 then 'new customers'
+    WHEN recency < r_3 and frequency <=f_1 then 'Promising'
+    WHEN recency < r_2 and frequency <= f_2 then 'About to Sleep'
+    WHEN recency > r_2 and frequency >= f_4 then 'Cannot Lose Them'
+    WHEN recency > r_2 and frequency >= f_2 then 'At Risk'
+  ELSE 'Hibernating'
+  END Flag
+FROM
+  Formula)
+
+SELECT
+  Flag,
+  Avg(Recency) avg_Recency,
+  Avg(Frequency) avg_frequency,
+  Avg(Monetary) avg_monetary,
+  Count (Distinct CustomerID) numbers_of_cust,
+  Count (Distinct CustomerID) / SUM (COunt(distinct CustomerID)) Over () percentage
+FROM base_2
+GROUP BY 1
+ORDER BY 5 Desc
