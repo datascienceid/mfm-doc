@@ -2,6 +2,6 @@
 
 Speaker:
 
-Akbar Delmi
-Big Data Engineer
+Akbar Delmi\
+Big Data Engineer\
 at detik.com

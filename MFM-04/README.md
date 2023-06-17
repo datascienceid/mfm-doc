@@ -2,6 +2,6 @@
 
 Speaker:
 
-Vito Rihaldijiran
-Business Intelligence Analyst
+Vito Rihaldijiran\
+Business Intelligence Analyst\
 at Bukalapak
