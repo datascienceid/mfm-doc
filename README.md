@@ -7,3 +7,4 @@ This repository contain supplementary materials/documentation for previous Melek
 - [MFM-03: Text Analysis using Topic Modeling](https://github.com/datascienceid/mfm-doc/tree/main/MFM-03)
 - [MFM-04: Data Preprocessing and Cleansing](https://github.com/datascienceid/mfm-doc/tree/main/MFM-04)
 - [MFM-05: A/B Test Experiment](https://github.com/datascienceid/mfm-doc/tree/main/MFM-05)
+- [MFM-06: Introduction to Generative AI](https://github.com/datascienceid/mfm-doc/tree/main/MFM-06)
